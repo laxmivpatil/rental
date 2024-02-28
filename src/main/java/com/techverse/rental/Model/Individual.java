@@ -30,7 +30,19 @@ public class Individual {
  private String deviceToken="";
  
  
+ private String role;
  
+ 
+	public String getRole() {
+		return role;
+	}
+	public void setRole(String role) {
+		this.role = role;
+	}
+public Individual() {
+	super();
+	// TODO Auto-generated constructor stub
+}
 public String getDeviceToken() {
 	return deviceToken;
 }
@@ -111,6 +123,7 @@ public Individual(String fullName, String phoneNumber, String aadharNumber, Stri
      LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zoneId);
  
 	this.createdDate = createdDate;
+	this.role="Individual";
 }
 
  

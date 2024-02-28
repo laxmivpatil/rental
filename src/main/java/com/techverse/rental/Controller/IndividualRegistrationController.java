@@ -15,23 +15,27 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.techverse.rental.DTO.ApiResponse;
+import com.techverse.rental.DTO.ApiResponse; 
 import com.techverse.rental.DTO.IndividualDTO;
 import com.techverse.rental.DTO.ResponseDTO;
 import com.techverse.rental.Model.Individual;
 import com.techverse.rental.Repository.IndividualRepository;
 import com.techverse.rental.Service.IndividualService;
+import com.techverse.rental.Service.OtpService;
  
 @RestController
 @RequestMapping("")
 public class IndividualRegistrationController {
 
+
+	 @Autowired
+	    private OtpService otpService;
  @Autowired
  private IndividualService individualService;
  @Autowired
  private IndividualRepository individualRepository;
  @PostMapping("/individual/register") 
- public ResponseEntity<String> registerIndividual(
+ public ResponseEntity<ResponseDTO<Object>> registerIndividual(
 		 @RequestPart("fullName") String fullName,
 			@RequestPart("phoneNumber") String phoneNumber,
 			@RequestPart("aadharNumber") String aadharNumber,
@@ -39,34 +43,52 @@ public class IndividualRegistrationController {
 			@RequestPart("address") String address,
 			@RequestPart("referralCode") String referralCode,
 			@RequestPart("aadharCardImg") MultipartFile aadharCardImg) {
+	 ResponseDTO<Object> response = new ResponseDTO<>();
 	 
+	 String otp=otpService.generateOtpAll(email);
+	 if(otp.equals("error")) {
+		    response.setStatus(false);
+            response.setMessage("error to send otp");
+            response.setData("");
+              return new ResponseEntity<>(response, HttpStatus.OK);
+	             
+	 }
      Individual registeredIndividual = individualService.registerIndividual(fullName,phoneNumber,aadharNumber,email,address,referralCode,aadharCardImg);
-     return new ResponseEntity<>("Individual registered successfully with ID: " + registeredIndividual.getId(), HttpStatus.CREATED);
+     IndividualDTO  individualDTO =  individualService.convertToDto(registeredIndividual);
+     
+     response.setStatus(true);
+     response.setMessage("Individual Registration done "+otp);
+     response.setData(individualDTO);
+       return new ResponseEntity<>(response, HttpStatus.OK);
+	 
  }
  @GetMapping("/individual/checkindividualbymobileoremail")
-	public ResponseEntity<?> checkUserByIdentifier(@RequestParam String mobileoremail) {
-		 
-	    ApiResponse responseBody = new ApiResponse();
+	public ResponseEntity<ResponseDTO<Object>> checkUserByIdentifier(@RequestParam String mobileoremail) {
+	 ResponseDTO<Object> response = new ResponseDTO<>();
+	     
 	    try {
-	     	        
-	        if (individualService.getIndividualByMobileOrEmail(mobileoremail).isPresent()) {
-	        	responseBody.setStatus(false);
-             responseBody.setMessage("User already registered");
-               return new ResponseEntity<>(responseBody, HttpStatus.OK);
+	    	Optional<Individual> registeredIndividual=individualService.getIndividualByMobileOrEmail(mobileoremail);
+	    	
+	        if (registeredIndividual.isPresent()) {
+	        	IndividualDTO  individualDTO =  individualService.convertToDto(registeredIndividual.get());     
+	        response.setStatus(false);
+             response.setMessage("User already registered");
+             response.setData(individualDTO);
+               return new ResponseEntity<>(response, HttpStatus.OK);
 	             
 	        } 
 	             else {
-	                responseBody.setStatus(true);
-	                responseBody.setMessage("User not registered");
+	                response.setStatus(true);
+	                response.setMessage("User not registered");
 
-	                return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+	                return ResponseEntity.status(HttpStatus.OK).body(response);
 	            }
 	         
 	    } catch (Exception e) {
 	     System.out.println("hi "+e);
-	        responseBody.setStatus(false);
-	        responseBody.setMessage("Failed to retrieve user." + e);
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+	        response.setStatus(false);
+	        response.setMessage("Failed to retrieve user." + e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	    }
 	}
 
@@ -80,7 +102,7 @@ public class IndividualRegistrationController {
 		         if (user.isPresent()) {
 		            responseBody.setStatus(true);
 		            responseBody.setMessage("User retrieved successfully.");
-		            responseBody.setData(new IndividualDTO(user.get())); // Convert user object to string if needed
+		            responseBody.setData(individualService.convertToDto(user.get())); // Convert user object to string if needed
 		            return ResponseEntity.ok(responseBody);
 		        } else {
 		        	 responseBody.setStatus(false);

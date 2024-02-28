@@ -19,7 +19,15 @@ public class IndividualDTO {
 	 private String aadharCardImg;
 	 private Date createdDate;
 	 
+	 private String role;
 	 
+	 
+		public String getRole() {
+			return role;
+		}
+		public void setRole(String role) {
+			this.role = role;
+		}
 	public String getPhoneNumber() {
 		return PhoneNumber;
 	}
@@ -75,22 +83,7 @@ public class IndividualDTO {
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
-	public IndividualDTO(Individual individual ) {
-		super();
-		this.fullName = individual.getFullName();
-		this.PhoneNumber = individual.getPhoneNumber();
-		this.aadharNumber = individual.getAadharNumber();
-		this.email = individual.getEmail();
-		 
-		this.address = individual.getAddress();
-		this.referralCode = individual.getReferralCode();
-		this.aadharCardImg = individual.getAadharCardImg();
-		  
-		 
 	 
-		this.createdDate = individual.getCreatedDate();
-	}
-
 	 
 	 
 	 

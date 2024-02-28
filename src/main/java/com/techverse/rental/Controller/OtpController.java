@@ -69,8 +69,8 @@ public class OtpController {
 
     
     /****final****/
-    @GetMapping("/individual/generateOtp")
-    public ResponseEntity<ResponseDTO<String>> generateOtpAll(@RequestParam String mobileNo) {
+    @GetMapping("/generateOtp")
+    public ResponseEntity<ResponseDTO<String>> generateOtpAll(@RequestParam String mobileoremail) {
    	  	String role="";
     	System.out.println();
    	
@@ -78,10 +78,10 @@ public class OtpController {
         response.setData("");
 
         try {
-            if (mobileNo != null && !mobileNo.isEmpty()) {
+            if (mobileoremail != null && !mobileoremail.isEmpty()) {
             	 String otp = otpService.generateOtp();
-            	if(mobileNo.matches("^\\d{10}$")) {
-            		if (otpService.sendOtp(mobileNo, otp)) {
+            	if(mobileoremail.matches("^\\d{10}$")) {
+            		if (otpService.sendOtp(mobileoremail, otp)) {
                     	System.out.println("Otp is "+otp);
                         response.setStatus(true);
                         response.setMessage("OTP sent successfully."+otp);
@@ -94,7 +94,7 @@ public class OtpController {
                     }
             	}
             	else {
-            		if (emailService.sendEmail(mobileNo, otp)) {
+            		if (emailService.sendEmail(mobileoremail, otp)) {
                     	System.out.println("Otp is "+otp);
                         response.setStatus(true);
                         response.setMessage("OTP sent successfully."+otp);
@@ -121,75 +121,22 @@ public class OtpController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     } 
-    @GetMapping("/company/generateOtp")
-    public ResponseEntity<ResponseDTO<String>> generateOtpAll1(@RequestParam String mobileNo) {
-   	  	String role="";
-    	System.out.println();
-   	
-        ResponseDTO<String> response = new ResponseDTO<>();
-        response.setData("");
-
-        try {
-            if (mobileNo != null && !mobileNo.isEmpty()) {
-            	 String otp = otpService.generateOtp();
-            	if(mobileNo.matches("^\\d{10}$")) {
-            		if (otpService.sendOtp(mobileNo, otp)) {
-                    	System.out.println("Otp is "+otp);
-                        response.setStatus(true);
-                        response.setMessage("OTP sent successfully."+otp);
-                        return ResponseEntity.ok(response);
-                    } else {
-                        response.setStatus(false);
-                        response.setMessage("Failed to send OTP.");
-                       
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-                    }
-            	}
-            	else {
-            		if (emailService.sendEmail(mobileNo, otp)) {
-                    	System.out.println("Otp is "+otp);
-                        response.setStatus(true);
-                        response.setMessage("OTP sent successfully."+otp);
-                        return ResponseEntity.ok(response);
-                    } else {
-                        response.setStatus(false);
-                        response.setMessage("Failed to send OTP.");
-                       
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-                    }
-            		
-            	}
-                    
-                 
-            } else {
-                response.setStatus(false);
-                
-                response.setMessage("Invalid Mobile No. or Email");
-                return ResponseEntity.badRequest().body(response);
-            }
-        } catch (Exception e) {
-            response.setStatus(false);
-            response.setMessage("Error occurred while processing your request.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    } 
-    
     
     /****final****/
     @PostMapping("/validateOtp")
 	public ResponseEntity<ResponseDTO<String>> validate(@org.springframework.web.bind.annotation.RequestBody Map<String, String> request) {
 	    ResponseDTO<String> response = new ResponseDTO<>();
 	    response.setData("");
-	    String phoneNumber = request.get("phoneNumber");
+	    String emailorphone = request.get("emailorphone");
 	    String otp = request.get("otp");
 
-	    if (StringUtils.isEmpty(phoneNumber) || StringUtils.isEmpty(otp)) {
+	    if (StringUtils.isEmpty( emailorphone) || StringUtils.isEmpty(otp)) {
 	    	 response.setStatus(false);
 	        response.setMessage("Missing required credentials.");
 	        return ResponseEntity.badRequest().body(response);
 	    }
 
-	    int otpVerificationResult = otpService.verifyOtp(phoneNumber, otp);
+	    int otpVerificationResult = otpService.verifyOtp(emailorphone, otp);
 
 	    if (otpVerificationResult == OtpVerificationResult.SUCCESS) {
 	        // Generate authentication token (you can use JWT)

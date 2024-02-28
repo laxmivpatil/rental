@@ -1,6 +1,7 @@
 package com.techverse.rental.Service;
  
 import com.techverse.rental.DTO.OtpVerificationResult;
+import com.techverse.rental.DTO.ResponseDTO;
 import com.techverse.rental.Model.OtpEntity;
 import com.techverse.rental.Repository.OtpRepository;
 import com.twilio.Twilio;
@@ -12,9 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
@@ -25,7 +29,8 @@ import java.util.Random;
 
 @Service
 public class OtpService {
-
+	 @Autowired
+	    private EmailService emailService;
 	 @Autowired
 	    private OtpRepository otpRepository;
 	 @Autowired
@@ -62,6 +67,43 @@ public class OtpService {
            
          
     }
+    
+    public String generateOtpAll(String mobileoremail) {
+   	  	String role="";
+    	System.out.println();
+   	
+        
+        try {
+            if (mobileoremail != null && !mobileoremail.isEmpty()) {
+            	 String otp = generateOtp();
+            	if(mobileoremail.matches("^\\d{10}$")) {
+            		if (sendOtp(mobileoremail, otp)) {
+                    	return otp;
+                    } else {
+                       return "error";
+                       
+                         
+                    }
+            	}
+            	else {
+            		if (emailService.sendEmail(mobileoremail, otp)) {
+                    	 return otp;
+                    } else {
+                       return "error";
+                    }
+            		
+            	}
+                    
+                 
+            } else {
+                return "error";
+            }
+        } catch (Exception e) {
+            return "error";
+        }
+    } 
+    
+    
  
  /*   public boolean sendOtp(String phoneNumber, String otp) {
         LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5);
@@ -97,7 +139,7 @@ public class OtpService {
     public int verifyOtp(String phoneNumber, String otp) {
         Optional<OtpEntity> otpEntityOptional = otpRepository.findByPhoneNumber(phoneNumber);
 
-        if (otpEntityOptional.isPresent() && passwordEncoder.matches(otp,otpEntityOptional.get().getOtp())) {
+        if (otpEntityOptional.isPresent() &&  otp.equals(otpEntityOptional.get().getOtp())) {
             OtpEntity otpEntity = otpEntityOptional.get();
             if (otpEntity.getExpiryTime().isAfter(LocalDateTime.now())) {
                 // OTP is valid and not expired

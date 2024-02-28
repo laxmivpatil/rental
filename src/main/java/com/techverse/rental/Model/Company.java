@@ -16,7 +16,7 @@ public class Company {
 	 private Long id;
 
 	 private String firmName;
-	 private String PhoneNumber;
+	 private String phoneNumber;
 	 private String aadharNumber;
 	 private String email; 
 	 private String address;
@@ -25,7 +25,15 @@ public class Company {
 	 private Date createdDate;
 	 private String gstNo;
 	 
+	 private String role;
 	 
+	 
+	public String getRole() {
+		return role;
+	}
+	public void setRole(String role) {
+		this.role = role;
+	}
 	public String getFirmName() {
 		return firmName;
 	}
@@ -38,11 +46,12 @@ public class Company {
 	public void setGstNo(String gstNo) {
 		this.gstNo = gstNo;
 	}
+	 
 	public String getPhoneNumber() {
-		return PhoneNumber;
+		return phoneNumber;
 	}
 	public void setPhoneNumber(String phoneNumber) {
-		PhoneNumber = phoneNumber;
+		this.phoneNumber = phoneNumber;
 	}
 	public Long getId() {
 		return id;
@@ -92,7 +101,7 @@ public class Company {
 			String address, String referralCode, String aadharCardImg,String gstNo) {
 		super();
 		this.firmName = firmName;
-		this.PhoneNumber = phoneNumber;
+		this.phoneNumber = phoneNumber;
 		this.aadharNumber = aadharNumber;
 		this.email = email;
 		 
@@ -107,6 +116,11 @@ public class Company {
 	 
 		this.createdDate = createdDate;
 		this.gstNo=gstNo;
+		this.role="Company";
+	}
+	public Company() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	 
